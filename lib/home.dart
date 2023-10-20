@@ -1,3 +1,4 @@
+import 'package:app1/screens/cart.dart';
 import 'package:flutter/material.dart';
 
 import 'screens/menu.dart';
@@ -14,10 +15,11 @@ class _NavigationBarAppState extends State<NavigationBarApp> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      Menu(),
+      const Menu(),
+      Cart(cart: [],),
     ];
     return Scaffold(
-      appBar: AppBar(title: Text("CorpFood",
+      appBar: AppBar(title: const Text("CorpFood",
       style: TextStyle(color: Colors.black)
       ), backgroundColor: Colors.white,
       ),
