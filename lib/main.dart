@@ -6,9 +6,12 @@ import 'package:provider/provider.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => CartState(),
-      child: MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CartState()),
+       
+      ],
+      child: MyApp(), 
     ),
   );
 }

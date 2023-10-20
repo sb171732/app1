@@ -16,7 +16,7 @@ class _NavigationBarAppState extends State<NavigationBarApp> {
   Widget build(BuildContext context) {
     final List<Widget> pages = [
       const Menu(),
-      Cart(cart: [],),
+      Cart(),
     ];
     return Scaffold(
       appBar: AppBar(title: const Text("CorpFood",
