@@ -11,12 +11,19 @@ class NavigationBarApp extends StatefulWidget {
 }
 
 class _NavigationBarAppState extends State<NavigationBarApp> {
+  late PageController pageController; // Создайте экземпляр PageController
   int currentPageIndex = 0;
+  @override
+  void initState() {
+    super.initState();
+    pageController = PageController(initialPage: 0); // Инициализируйте контроллер страниц
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      const Menu(),
-      Cart(),
+      Menu(pageController: pageController), // Передайте контроллер страниц для Menu.
+      Cart(pageController: pageController), // Передайте контроллер страниц для Cart.
     ];
     return Scaffold(
       appBar: AppBar(title: const Text("CorpFood",

@@ -5,16 +5,18 @@ import 'package:http/http.dart' as http;
 import 'cart.dart'; // Убедитесь, что путь к вашему файлу cart.dart указан правильно.
 
 class Menu extends StatefulWidget {
-  const Menu({Key? key});
+  final PageController pageController;
+   const Menu({Key? key, required this.pageController}) : super(key: key);
 
   @override
   State<Menu> createState() => _MenuState();
 }
 
 class _MenuState extends State<Menu> {
-  List<Dish> menu = []; // Теперь список содержит объекты Dish
+  List<Dish> menu = [];
   late CartState cartState;
-
+  Map<String, dynamic>? selectedDish;
+  
   @override
   void initState() {
     super.initState();
@@ -23,7 +25,7 @@ class _MenuState extends State<Menu> {
   }
 
   Future<void> loadMenu() async {
-    final response = await http.get(Uri.parse('http://192.168.40.55:5000/menu'),);
+    final response = await http.get(Uri.parse('http://192.168.40.55:5000/menu'));
     if (response.statusCode == 200) {
       final jsonData = List<Map<String, dynamic>>.from(jsonDecode(response.body));
 
@@ -42,41 +44,39 @@ class _MenuState extends State<Menu> {
     }
   }
 
+  void showDishDetails(Map<String, dynamic> dish) {
+    setState(() {
+      selectedDish = dish;
+    });
+  }
+
+  void hideDishDetails() {
+    setState(() {
+      selectedDish = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView.builder(
-        itemCount: menu.length,
-        itemBuilder: (context, index) {
-          final dish = menu[index];
-          return ListTile(
-            leading: InkWell(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                 builder: (context) => AnimatedDishDetails(dish: dish.toMap(), isFromCart: false),
-
-                ));
-              },
-              child: Image.network(dish.image),
+    return Material(
+      child: Stack(
+        children: [
+          ListView.builder(
+            padding: EdgeInsets.all(10),
+            itemExtent: 80,
+            itemCount: menu.length,
+            itemBuilder: (context, index) {
+              final dish = menu[index];
+              return KFCwidget(dish, () => showDishDetails(dish.toMap()));
+            },
+          ),
+          if (selectedDish != null) 
+            AnimatedDishDetails(
+              dish: selectedDish!,
+              isFromCart: false,
+              onClose: () => hideDishDetails(),
             ),
-            title: InkWell(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                 builder: (context) => AnimatedDishDetails(dish: dish.toMap(), isFromCart: false),
-
-                ));
-              },
-              child: Text(dish.name),
-            ),
-            subtitle: TextButton(
-              onPressed: () {
-                final cartState = Provider.of<CartState>(context, listen: false);
-                cartState.addToCart(dish.toMap());
-              },
-              child: Text(dish.price.toString()),
-            ),
-          );
-        },
+        ],
       ),
     );
   }
@@ -85,43 +85,46 @@ class _MenuState extends State<Menu> {
 
 
 
+
+
 class DishDetails extends StatelessWidget {
   final Map<String, dynamic> dish;
   final bool isFromCart;
-  DishDetails({required this.dish, required this.isFromCart});
+  final PageController pageController; // Добавьте pageController как параметр
+
+  DishDetails({required this.dish, required this.isFromCart, required this.pageController});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
+    return Material(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.network(dish['image']),
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        '${dish['name']}',
-        style: TextStyle(fontSize: 40),
-      ),
-      Text(
-        "Описание",
-        style: TextStyle(fontSize: 20), // Измените на желаемый размер шрифта
-      ),
-      Text(
-        '${dish['description']}',
-        style: TextStyle(fontSize: 15),
-      ),
-    ],
-  ),
-)
-
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${dish['name']}',
+                        style: const TextStyle(fontSize: 40),
+                      ),
+                      const Text(
+                        "Описание",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      Text(
+                        '${dish['description']}',
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -130,14 +133,13 @@ class DishDetails extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: TextButton(
                 onPressed: () {
-                  
                   if (isFromCart) {
-                    Navigator.pop(context);
+                    pageController.animateToPage(1, duration: Duration(milliseconds: 500), curve: Curves.ease);
                   } else {
                     final cartState = Provider.of<CartState>(context, listen: false);
-                  cartState.addToCart(dish);
+                    cartState.addToCart(dish);
+                   
                   }
-                  
                 },
                 child: Text(isFromCart ? "Готово" : "Добавить в корзину ${dish["price"]}"),
               ),
@@ -148,11 +150,14 @@ class DishDetails extends StatelessWidget {
     );
   }
 }
+ 
 
 class AnimatedDishDetails extends StatefulWidget {
   final Map<String, dynamic> dish;
   final bool isFromCart;
-  AnimatedDishDetails({required this.dish, required this.isFromCart});
+  final void Function() onClose; // Добавьте параметр для закрытия.
+
+  AnimatedDishDetails({required this.dish, required this.isFromCart, required this.onClose});
 
   @override
   _AnimatedDishDetailsState createState() => _AnimatedDishDetailsState();
@@ -168,14 +173,14 @@ class _AnimatedDishDetailsState extends State<AnimatedDishDetails> with SingleTi
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
     _offsetAnimation = Tween<Offset>(
-      begin: Offset(0, 1.0),
+      begin: const Offset(0, 1.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
-      curve: Curves.easeOut,
+      curve: Curves.linear,
     ));
     _animationController.forward();
   }
@@ -189,11 +194,11 @@ class _AnimatedDishDetailsState extends State<AnimatedDishDetails> with SingleTi
           onVerticalDragUpdate: (details) {
             if (details.primaryDelta! < -20) {
               _animationController.reverse().then((_) {
-                Navigator.pop(context);
+                widget.onClose();
               });
             }
           },
-          child: DishDetails(dish: widget.dish, isFromCart: widget.isFromCart),
+          child: DishDetails(dish: widget.dish, isFromCart: widget.isFromCart, pageController: PageController(initialPage: 0)  ),
         ),
       ),
     );
@@ -228,3 +233,53 @@ class Dish {
     required this.image,
   });
 }
+class KFCwidget extends StatelessWidget {
+  final Dish dish;
+  final void Function() onTapCallback;
+
+  KFCwidget(this.dish, this.onTapCallback);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        onTapCallback(); 
+      },
+      child: Row(
+        children: [
+          Hero(
+            tag: 'dish_image_${dish.id}',
+            child: Image.network(
+              dish.image,
+              width: 150,
+              height: 150,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Hero(
+                tag: 'dish_name_${dish.id}',
+                child: Text(
+                  dish.name,
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  final cartState = Provider.of<CartState>(context, listen: false);
+                  cartState.addToCart(dish.toMap());
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                ),
+                child: Text('${dish.price.toStringAsFixed(0)}', style: TextStyle(color: Colors.black)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
