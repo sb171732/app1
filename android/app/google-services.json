@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "936214269434",
+    "project_id": "masterclass-6b8b9",
+    "storage_bucket": "masterclass-6b8b9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936214269434:android:bda8de0fb365564482e843",
+        "android_client_info": {
+          "package_name": "com.example.app1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAn1e379OJZD4k_w1I67N8IyzpURYiyaZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
