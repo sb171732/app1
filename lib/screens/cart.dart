@@ -6,18 +6,15 @@ import 'package:provider/provider.dart';
 
 class Cart extends StatefulWidget {
   final PageController pageController;
-   final VoidCallback GoMenu;
-    const Cart({Key? key, required this.pageController, required this.GoMenu})
-      : super(key: key);
+  final VoidCallback GoMenu;
+
+  const Cart({Key? key, required this.pageController, required this.GoMenu}) : super(key: key);
 
   @override
   State<Cart> createState() => _CartState();
 }
 
 class _CartState extends State<Cart> {
-  
-  
-
   @override
   Widget build(BuildContext context) {
     final cartState = Provider.of<CartState>(context);
@@ -29,45 +26,60 @@ class _CartState extends State<Cart> {
             Scaffold(
               body: Column(
                 children: [
+                  Container(
+                    alignment: Alignment.center,
+                    color: Colors.white.withOpacity(0.7),
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      "Набрано в корзину ${cartState.cart.length} блюд на ${cartState.getTotalPrice().toStringAsFixed(2)}",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
                   Expanded(
                     child: ListView.builder(
-                      
                       padding: const EdgeInsets.all(10),
                       itemCount: cartState.cart.length,
                       itemBuilder: (context, index) {
                         final item = cartState.cart[index];
-                         final dish = Dish(
-      id: item['id'],
-      name: item['name'],
-      description: item['description'],
-      price: item['price'].toDouble(),
-      image: item['image'],  
-    
-    );
-    
-                     return CartKFCwidget(
-  dish: dish, // Передайте объект блюда
-  onUpdateQuantity: (int change) {
-    cartState.updateQuantity(dish.toMap(), change);
-  },
-  quantity: cartState.cart
-      .where((item) => item['id'] == dish.id)
-      .map<int>((item) => item['quantity'] as int)
-      .fold(0, (prev, curr) => prev + curr),
-  onTapCallback: () {
-    // Обработчик нажатия на корзину
-    cartState.showDishDetails(dish.toMap());
-  }, cartState: cartState,
-);
+                        final dish = Dish(
+                          id: item['id'],
+                          name: item['name'],
+                          description: item['description'],
+                          price: item['price'].toDouble(),
+                          image: item['image'],
+                        );
+
+                        return CartKFCwidget(
+                          dish: dish,
+                          onUpdateQuantity: (int change) {
+                            cartState.updateQuantity(dish.toMap(), change);
+                          },
+                          quantity: cartState.cart
+                              .where((item) => item['id'] == dish.id)
+                              .map<int>((item) => item['quantity'] as int)
+                              .fold(0, (prev, curr) => prev + curr),
+                          onTapCallback: () {
+                            cartState.showDishDetails(dish.toMap());
+                          },
+                          cartState: cartState,
+                        );
                       },
-                      
                     ),
                   ),
                 ],
+              ),
+            ),
+            if (cartState.cart.isNotEmpty && cartState.selectedDish == null)
+              Align(
+                
+                alignment: Alignment.bottomCenter,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: Text('Оплатить ${cartState.getTotalPrice().toStringAsFixed(2)}₽'),
+                  
+                ),
                 
               ),
-              
-            ),
             if (cartState.selectedDish != null)
               Positioned(
                 top: 0,
@@ -84,54 +96,36 @@ class _CartState extends State<Cart> {
                   pageController: widget.pageController,
                 ),
               ),
-            // if (cartState.cart.isNotEmpty && cartState.selectedDish == null)
-            //   Align(
-                
-            //     alignment: Alignment.bottomCenter,
-            //     child: ElevatedButton(
-            //       onPressed: () {},
-            //       child: Text('Оплатить ${cartState.getTotalPrice().toStringAsFixed(2)}'),
-                  
-            //     ),
-                
-            //   ),
             if (cartState.cart.isEmpty)
-             const Center(
-              child: Column(
+              const Center(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     Text("Корзина пуста\nВыберите блюда из меню",style: TextStyle(color: Colors.black, fontSize: 20),),
-
+                    Text(
+                      "Корзина пуста\nВыберите блюда из меню",
+                      style: TextStyle(color: Colors.black, fontSize: 20),
+                    ),
                   ],
-
                 ),
-
-            ),
+              ),
             if (cartState.cart.isEmpty)
-            Container(
-               width: double.infinity,
- child: Align(
-                      
-                      alignment: Alignment.bottomCenter,
-                      
-                      child: TextButton(onPressed: widget.GoMenu, style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.red),), 
-                      child:  const Text("Перейти в меню",
+              Container(
+                width: double.infinity,
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: TextButton(
+                    onPressed: widget.GoMenu,
+                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.red)),
+                    child: const Text(
+                      "Перейти в меню",
                       style: TextStyle(
-                      
-                      color: Colors.white,
-                      
+                        color: Colors.white,
                       ),
-                      ),
-                      
-                      ) ,
-                     ),
-            ),
-             
-              
-               
-
+                    ),
+                  ),
+                ),
+              ),
           ],
-          
         ),
       ],
     );
