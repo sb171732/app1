@@ -95,56 +95,21 @@ class _MenuState extends State<Menu> {
         Stack(
           children: [
             Scaffold(
-              body: CustomScrollView(
-                slivers: <Widget>[
-                  SliverList(
-                    delegate: SliverChildListDelegate(
-                      <Widget>[
-                        Column(
-                          children: newsList.map((newsItem) {
-                            return ListTile(
-                              leading: Image.network(newsItem.image),
-                              title: Text(newsItem.title),
-                            );
-                          }).toList(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  "Выберите понравившиеся блюда",
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (BuildContext context, int index) {
-                        if (index == 0) {
-                          return Container(); // Здесь ничего не отображаем, так как новости уже выше
-                        } else {
-                          final dish = menu[index - 1];
-                          return MenuKFCwidget(
-                              dish: dish,
-                              onTapCallback: (CartState cartState) {
-                                cartState.showDishDetails(dish.toMap());
-                                // Другие операции, связанные с корзиной
-                              });
-                        }
-                      },
-                      childCount: menu.length,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+              body: StreamBuilder<QuerySnapshot>(
+                  stream:
+                      FirebaseFirestore.instance.collection('test').snapshots(),
+                  builder: (BuildContext context, snapshot) {
+                    return ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title: Text(snapshot.data!.docs[index].get('name')),
+                            subtitle:
+                                Text(snapshot.data!.docs[index].get('price')),
+                          );
+                        });
+                  }),
+            )
           ],
         ),
       ],

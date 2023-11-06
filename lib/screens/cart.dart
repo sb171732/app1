@@ -1,14 +1,15 @@
-import 'dart:ffi';
+// import 'dart:ffi';
 import 'package:app1/screens/menu.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
- // Убедитесь, что путь к вашему файлу cart.dart указан правильно.
+// Убедитесь, что путь к вашему файлу cart.dart указан правильно.
 
 class Cart extends StatefulWidget {
   final PageController pageController;
   final VoidCallback GoMenu;
 
-  const Cart({Key? key, required this.pageController, required this.GoMenu}) : super(key: key);
+  const Cart({Key? key, required this.pageController, required this.GoMenu})
+      : super(key: key);
 
   @override
   State<Cart> createState() => _CartState();
@@ -71,14 +72,12 @@ class _CartState extends State<Cart> {
             ),
             if (cartState.cart.isNotEmpty && cartState.selectedDish == null)
               Align(
-                
                 alignment: Alignment.bottomCenter,
                 child: ElevatedButton(
                   onPressed: () {},
-                  child: Text('Оплатить ${cartState.getTotalPrice().toStringAsFixed(2)}₽'),
-                  
+                  child: Text(
+                      'Оплатить ${cartState.getTotalPrice().toStringAsFixed(2)}₽'),
                 ),
-                
               ),
             if (cartState.selectedDish != null)
               Positioned(
@@ -115,7 +114,9 @@ class _CartState extends State<Cart> {
                   alignment: Alignment.bottomCenter,
                   child: TextButton(
                     onPressed: widget.GoMenu,
-                    style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.red)),
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.red)),
                     child: const Text(
                       "Перейти в меню",
                       style: TextStyle(
@@ -132,11 +133,10 @@ class _CartState extends State<Cart> {
   }
 }
 
-
 class CartState with ChangeNotifier {
   void showDishDetails(Map<String, dynamic> dish) {
     _selectedDish = dish;
-    
+
     notifyListeners();
   }
 
@@ -144,12 +144,11 @@ class CartState with ChangeNotifier {
     _selectedDish = null;
     notifyListeners();
   }
-  
 
   List<Map<String, dynamic>> _cart = [];
   Map<String, dynamic>? _selectedDish;
   Map<String, dynamic>? get selectedDish => _selectedDish;
-  
+
   List<Map<String, dynamic>> get cart => _cart;
 
   double getTotalPrice() {
@@ -157,7 +156,7 @@ class CartState with ChangeNotifier {
 
     for (final item in _cart) {
       final quantity = item['quantity'] ?? 1;
-      final price = item['price']?? 5;
+      final price = item['price'] ?? 5;
       totalPrice += quantity * price;
     }
 
@@ -165,42 +164,35 @@ class CartState with ChangeNotifier {
   }
 
   void addToCart(Map<String, dynamic>? item) {
-  if (item != null) {
-    final id = item['id'];
-    final name = item['name'];
-    final description = item['description'];
-    final price = item['price'].toDouble();
-    final image = item['image'];
+    if (item != null) {
+      final id = item['id'];
+      final name = item['name'];
+      final description = item['description'];
+      final price = item['price'].toDouble();
+      final image = item['image'];
 
-    final existingCartItem = _cart.firstWhere(
-      (cartItem) =>
-          cartItem['id'] == id && cartItem['name'] == name,
-      orElse: () => <String, dynamic>{},
-    );
+      final existingCartItem = _cart.firstWhere(
+        (cartItem) => cartItem['id'] == id && cartItem['name'] == name,
+        orElse: () => <String, dynamic>{},
+      );
 
-    if (existingCartItem.isNotEmpty) {
-      existingCartItem['quantity'] = (existingCartItem['quantity']) + 1;
-      print('обновляю ТОВАР');
-    } else {
-      print('ДОБАВЛЯЮ ТОВАР С 1');
-      _cart.add({
-        'id': id,
-        'name': name,
-        'description': description,
-        'price': price,
-        'image': image,
-        'quantity': 1
-      });
+      if (existingCartItem.isNotEmpty) {
+        existingCartItem['quantity'] = (existingCartItem['quantity']) + 1;
+        print('обновляю ТОВАР');
+      } else {
+        print('ДОБАВЛЯЮ ТОВАР С 1');
+        _cart.add({
+          'id': id,
+          'name': name,
+          'description': description,
+          'price': price,
+          'image': image,
+          'quantity': 1
+        });
+      }
+      notifyListeners();
     }
-    notifyListeners();
   }
-}
-
-
-
-
-
-
 
   void updateQuantity(Map<String, dynamic> item, int change) {
     final id = item['id'];
@@ -220,5 +212,3 @@ class CartState with ChangeNotifier {
     }
   }
 }
-
-

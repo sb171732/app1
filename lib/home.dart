@@ -20,7 +20,8 @@ class _NavigationBarAppState extends State<NavigationBarApp> {
   @override
   void initState() {
     super.initState();
-    pageController = PageController(initialPage: 0); // Инициализируйте контроллер страниц
+    pageController =
+        PageController(initialPage: 0); // Инициализируйте контроллер страниц
   }
 
   void GoMenu() {
@@ -32,97 +33,98 @@ class _NavigationBarAppState extends State<NavigationBarApp> {
 
   @override
   Widget build(BuildContext context) {
-          final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final List<Widget> pages = [
-      Menu(pageController: pageController), // Передайте контроллер страниц для Menu.
+      Menu(
+          pageController:
+              pageController), // Передайте контроллер страниц для Menu.
       Cart(
         pageController: pageController,
         GoMenu: GoMenu, // Передайте функцию GoMenu для Cart.
       )
-      ];
-      
-      return Scaffold(
-        appBar: AppBar(
-          title: Text("CorpFood", style: TextStyle(color: Colors.black)),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          automaticallyImplyLeading: true,
-          iconTheme: IconThemeData(
-            color: Colors.black,
-          ),
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("CorpFood", style: TextStyle(color: Colors.black)),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: true,
+        iconTheme: IconThemeData(
+          color: Colors.black,
         ),
-        drawer: Drawer(
-          child: ListView(
-            children: <Widget>[
-              DrawerHeader(
-                margin: EdgeInsets.zero,
-                padding: EdgeInsets.zero,
-                child: UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(color: Colors.white),
-                  accountName:
-                      Text(FirebaseAuth.instance.currentUser?.displayName ?? 'Гость', style: TextStyle(color: Colors.black)),
-                  accountEmail: Text(user?.email ?? 'Анонимус залогинься', style: TextStyle(color: Colors.black)),
-                ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+              margin: EdgeInsets.zero,
+              padding: EdgeInsets.zero,
+              child: UserAccountsDrawerHeader(
+                decoration: BoxDecoration(color: Colors.white),
+                accountName: Text(user?.displayName ?? 'Гость',
+                    style: TextStyle(color: Colors.black)),
+                accountEmail: Text(user?.email ?? 'Анонимус залогинься',
+                    style: TextStyle(color: Colors.black)),
               ),
-              ListTile(
-                title: Text("О себе"),
-                leading: Icon(Icons.account_box),
-                onTap: () {
-                  Navigator.pushNamed(context, '/account');
+            ),
+            ListTile(
+              title: Text("О себе"),
+              leading: Icon(Icons.account_box),
+              onTap: () {
+                Navigator.pushNamed(context, '/account');
+              },
+            ),
+            ListTile(
+              title: Text("Настройки"),
+              leading: Icon(Icons.settings),
+              onTap: () {},
+            ),
+            ListTile(
+              title: Text("Темная тема"),
+              leading: Icon(Icons.brightness_4),
+              trailing: Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) {
+                  return Switch(
+                    value: themeProvider.isDarkMode,
+                    onChanged: (value) {
+                      themeProvider.isDarkMode;
+                      setState(() {
+                        themeProvider.isDarkMode;
+                      });
+                    },
+                  );
                 },
               ),
-              ListTile(
-                title: Text("Настройки"),
-                leading: Icon(Icons.settings),
-                onTap: () {},
-              ),
-              ListTile(
-                title: Text("Темная тема"),
-                leading: Icon(Icons.brightness_4),
-                trailing: Consumer<ThemeProvider>(
-                  builder: (context, themeProvider, child) {
-                    return Switch(
-                      value: themeProvider.isDarkMode,
-                      onChanged: (value) {
-                        
-                        themeProvider.toggleTheme();
-                        setState(() {
-                          
-                        });
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {
-            setState(() {
-              currentPageIndex = index;
-            });
-          },
-          indicatorColor: Colors.amber,
-          selectedIndex: currentPageIndex,
-          destinations: const <Widget>[
-            NavigationDestination(
-              icon: Icon(Icons.restaurant_menu),
-              selectedIcon: Icon(Icons.restaurant_menu_outlined),
-              label: 'Меню',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.shopping_basket),
-              selectedIcon: Icon(Icons.shopping_basket_outlined),
-              label: 'Корзина',
             ),
           ],
         ),
-        body: pages[currentPageIndex],
-      );
-    }
+      ),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        indicatorColor: Colors.amber,
+        selectedIndex: currentPageIndex,
+        destinations: const <Widget>[
+          NavigationDestination(
+            icon: Icon(Icons.restaurant_menu),
+            selectedIcon: Icon(Icons.restaurant_menu_outlined),
+            label: 'Меню',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_basket),
+            selectedIcon: Icon(Icons.shopping_basket_outlined),
+            label: 'Корзина',
+          ),
+        ],
+      ),
+      body: pages[currentPageIndex],
+    );
   }
-
+}
 
 class ThemeProvider with ChangeNotifier {
   bool _isDarkMode = false;
